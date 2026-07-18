@@ -1,113 +1,169 @@
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ref } from "vue";
+import { Head, router, Link } from "@inertiajs/vue3";
+import Swal from "sweetalert2";
 
-const form = useForm({
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
+import authService from "@/Services/authService";
+
+import Card from "@/Components/ui/card/Card.vue";
+import CardContent from "@/Components/ui/card/CardContent.vue";
+
+import Label from "@/Components/ui/label/Label.vue";
+import Input from "@/Components/ui/input/Input.vue";
+import Button from "@/Components/ui/button/Button.vue";
+
+const form = ref({
+    name: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
 });
 
-const submit = () => {
-    form.post(route('register'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
-    });
+const loading = ref(false);
+
+const register = async () => {
+    loading.value = true;
+
+    try {
+        await authService.register(form.value);
+
+        Swal.fire({
+            icon: "success",
+            title: "Registrasi Berhasil",
+            text: "Silakan login menggunakan akun yang baru dibuat.",
+            timer: 1800,
+            showConfirmButton: false,
+        });
+
+        router.visit("/login");
+    } catch (err) {
+        Swal.fire({
+            icon: "error",
+            title: "Registrasi Gagal",
+            text:
+                err.response?.data?.message ||
+                "Terjadi kesalahan saat registrasi.",
+        });
+    } finally {
+        loading.value = false;
+    }
 };
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Register" />
+    <Head title="Register" />
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="name" value="Name" />
-
-                <TextInput
-                    id="name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.name"
-                    required
-                    autofocus
-                    autocomplete="name"
-                />
-
-                <InputError class="mt-2" :message="form.errors.name" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="email" value="Email" />
-
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autocomplete="username"
-                />
-
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="new-password"
-                />
-
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel
-                    for="password_confirmation"
-                    value="Confirm Password"
-                />
-
-                <TextInput
-                    id="password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password_confirmation"
-                    required
-                    autocomplete="new-password"
-                />
-
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.password_confirmation"
-                />
-            </div>
-
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    :href="route('login')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+    <div
+        class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-cyan-100 p-6"
+    >
+        <Card
+            class="w-full max-w-5xl overflow-hidden rounded-3xl shadow-2xl border-0"
+        >
+            <CardContent class="grid md:grid-cols-2 p-0">
+                <!-- LEFT -->
+                <div
+                    class="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-emerald-600 to-teal-700 text-white p-10"
                 >
-                    Already registered?
-                </Link>
+                    <img src="/images/logo.png" class="w-36 mb-8" alt="Logo" />
 
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
+                    <h1 class="text-4xl font-bold">Smart Hub</h1>
+
+                    <p class="mt-2 opacity-90">Management System</p>
+
+                    <div class="mt-10 space-y-4 text-left">
+                        <div>✅ Room Management</div>
+                        <div>✅ Equipment Management</div>
+                        <div>✅ Booking System</div>
+                        <div>✅ Check In</div>
+                        <div>✅ Dashboard Analytics</div>
+                    </div>
+                </div>
+
+                <!-- RIGHT -->
+                <form
+                    class="p-10 flex flex-col justify-center"
+                    @submit.prevent="register"
                 >
-                    Register
-                </PrimaryButton>
-            </div>
-        </form>
-    </GuestLayout>
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold">Create Account 🚀</h2>
+
+                        <p class="text-slate-500 mt-2">
+                            Daftarkan akun untuk menggunakan Smart Hub
+                            Management System.
+                        </p>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div>
+                            <Label>Nama Lengkap</Label>
+
+                            <Input
+                                v-model="form.name"
+                                type="text"
+                                placeholder="Masukkan nama lengkap"
+                                class="mt-2"
+                            />
+                        </div>
+
+                        <div>
+                            <Label>Email</Label>
+
+                            <Input
+                                v-model="form.email"
+                                type="email"
+                                placeholder="Masukkan email"
+                                class="mt-2"
+                            />
+                        </div>
+
+                        <div>
+                            <Label>Password</Label>
+
+                            <Input
+                                v-model="form.password"
+                                type="password"
+                                placeholder="Masukkan password"
+                                class="mt-2"
+                            />
+                        </div>
+
+                        <div>
+                            <Label>Konfirmasi Password</Label>
+
+                            <Input
+                                v-model="form.password_confirmation"
+                                type="password"
+                                placeholder="Ulangi password"
+                                class="mt-2"
+                            />
+                        </div>
+
+                        <Button
+                            type="submit"
+                            variant="emerald"
+                            class="w-full h-11"
+                            :disabled="loading"
+                        >
+                            {{ loading ? "Loading..." : "Daftar Sekarang" }}
+                        </Button>
+
+                        <div class="text-center text-sm text-slate-500">
+                            Sudah punya akun?
+
+                            <Link
+                                href="/login"
+                                class="font-semibold text-emerald-600 hover:underline"
+                            >
+                                Login
+                            </Link>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 text-center text-xs text-slate-400">
+                        © 2026 Smart Hub Management System
+                    </div>
+                </form>
+            </CardContent>
+        </Card>
+    </div>
 </template>
