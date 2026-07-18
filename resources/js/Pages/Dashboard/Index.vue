@@ -1,6 +1,6 @@
 <script setup>
 import AppLayout from "@/Layouts/AppLayout.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head, router } from "@inertiajs/vue3";
 
 import { ref, onMounted, computed } from "vue";
 import dashboardService from "@/Services/dashboardService";
@@ -53,6 +53,12 @@ const isUser = computed(() => {
 });
 onMounted(() => {
     getDashboard();
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        router.visit("/login");
+    }
 });
 </script>
 
