@@ -263,7 +263,7 @@ onMounted(() => {
                                             () =>
                                                 deleteAction(
                                                     route(
-                                                        'categories.destroy',
+                                                        'categories.delete',
                                                         category.id,
                                                     ),
                                                 )

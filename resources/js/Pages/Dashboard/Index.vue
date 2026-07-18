@@ -53,12 +53,6 @@ const isUser = computed(() => {
 });
 onMounted(() => {
     getDashboard();
-
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        router.visit("/login");
-    }
 });
 </script>
 

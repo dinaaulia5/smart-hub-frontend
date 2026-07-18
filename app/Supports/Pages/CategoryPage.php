@@ -22,7 +22,7 @@ class CategoryPage
             'title' => 'Tambah Kategori',
             'subtitle' => 'Tambahkan data Kategori baru ke sistem.',
             'method' => 'POST',
-            'action' => route('airlines.store'),
+            'action' => route('categories.store'),
         ];
     }
 
@@ -32,7 +32,7 @@ class CategoryPage
             'title' => 'Perbarui Kategori',
             'subtitle' => 'Perbarui informasi Kategori yang sudah terdaftar.',
             'method' => 'PUT',
-            'action' => route('airlines.update', $airline),
+            'action' => route('categories.update', $airline),
         ];
     }
 
@@ -58,7 +58,7 @@ class CategoryPage
             ],
             [
                 'label' => 'Kategori',
-                'href' => route('airlines.index'),
+                'href' => route('categories.index'),
             ],
             [
                 'label' => 'Tambah Kategori',
@@ -75,7 +75,7 @@ class CategoryPage
             ],
             [
                 'label' => 'Kategori',
-                'href' => route('airlines.index'),
+                'href' => route('categories.index'),
             ],
             [
                 'label' => 'Perbarui Kategori',

@@ -22,7 +22,6 @@ import {
 
 import { IconArrowBack, IconCheck, IconTool } from "@tabler/icons-vue";
 
-import equipmentService from "@/Services/equipmentService";
 import categoryService from "@/Services/categoryService";
 
 defineOptions({
@@ -38,16 +37,12 @@ const props = defineProps({
 const loading = ref(false);
 
 const form = ref({
-    category_id: "",
-    code: "",
     name: "",
-    brand: "",
-    stock: 0,
-    condition: "good",
-    status: "available",
+    description: "",
 });
 
 const errors = ref({});
+
 const categories = ref([]);
 
 const fetchCategories = async () => {
@@ -64,45 +59,16 @@ const fetchCategories = async () => {
 
 const resetForm = () => {
     form.value = {
-        category_id: "",
-        code: "",
         name: "",
-        brand: "",
-        stock: 0,
-        condition: "good",
-        status: "available",
+        description: "",
     };
 };
 
 const validateForm = () => {
     errors.value = {};
 
-    if (!form.value.category_id) {
-        errors.value.category_id = ["Kategori wajib dipilih."];
-    }
-
-    if (!form.value.code) {
-        errors.value.code = ["Kode equipment wajib diisi."];
-    }
-
-    if (!form.value.name) {
-        errors.value.name = ["Nama equipment wajib diisi."];
-    }
-
-    if (!form.value.brand) {
-        errors.value.brand = ["Brand wajib diisi."];
-    }
-
-    if (form.value.stock === "" || form.value.stock === null) {
-        errors.value.stock = ["Stock wajib diisi."];
-    }
-
-    if (!form.value.condition) {
-        errors.value.condition = ["Kondisi wajib dipilih."];
-    }
-
-    if (!form.value.status) {
-        errors.value.status = ["Status wajib dipilih."];
+    if (!form.value.name.trim()) {
+        errors.value.name = ["Nama kategori wajib diisi."];
     }
 
     return Object.keys(errors.value).length === 0;
@@ -117,9 +83,9 @@ const onHandleSubmit = async () => {
     errors.value = {};
 
     try {
-        await equipmentService.store(form.value);
+        await categoryService.create(form.value);
 
-        router.visit(route("equipments.index"));
+        router.visit(route("categories.index"));
     } catch (error) {
         if (error.response?.status === 422) {
             errors.value = error.response.data.errors;
@@ -149,7 +115,7 @@ onMounted(() => {
                     />
 
                     <Button variant="emerald" size="xl" as-child>
-                        <Link :href="route('equipments.index')">
+                        <Link :href="route('categories.index')">
                             <IconArrowBack class="size-4" />
                             Kembali
                         </Link>
@@ -159,57 +125,14 @@ onMounted(() => {
 
             <CardContent>
                 <form @submit.prevent="onHandleSubmit" class="space-y-8">
-                    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        <!-- ================= CATEGORY ================= -->
+                    <div class="grid grid-cols-1 gap-6">
                         <div class="space-y-2">
-                            <Label for="category">Kategori</Label>
-
-                            <Select v-model="form.category_id">
-                                <SelectTrigger class="w-full">
-                                    <SelectValue placeholder="Pilih kategori" />
-                                </SelectTrigger>
-
-                                <SelectContent>
-                                    <SelectItem
-                                        v-for="category in categories"
-                                        :key="category.id"
-                                        :value="category.id"
-                                    >
-                                        {{ category.name }}
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-
-                            <InputError :message="errors.category_id?.[0]" />
-                        </div>
-
-                        <!-- ================= CODE ================= -->
-
-                        <div class="space-y-2">
-                            <Label for="code">Kode Equipment</Label>
-
-                            <Input
-                                id="code"
-                                v-model="form.code"
-                                placeholder="Contoh : EQ001"
-                                :class="{
-                                    'border-red-500 focus-visible:ring-red-500':
-                                        errors.code,
-                                }"
-                            />
-
-                            <InputError :message="errors.code?.[0]" />
-                        </div>
-
-                        <!-- ================= NAME ================= -->
-
-                        <div class="space-y-2">
-                            <Label for="name">Nama Equipment</Label>
+                            <Label for="name">Nama Kategori</Label>
 
                             <Input
                                 id="name"
                                 v-model="form.name"
-                                placeholder="Masukkan nama equipment"
+                                placeholder="Contoh: Elektronik"
                                 :class="{
                                     'border-red-500 focus-visible:ring-red-500':
                                         errors.name,
@@ -219,99 +142,17 @@ onMounted(() => {
                             <InputError :message="errors.name?.[0]" />
                         </div>
 
-                        <!-- ================= BRAND ================= -->
-
                         <div class="space-y-2">
-                            <Label for="brand">Brand</Label>
+                            <Label for="description">Deskripsi</Label>
 
-                            <Input
-                                id="brand"
-                                v-model="form.brand"
-                                placeholder="Contoh : Logitech"
-                                :class="{
-                                    'border-red-500 focus-visible:ring-red-500':
-                                        errors.brand,
-                                }"
-                            />
+                            <textarea
+                                v-model="form.description"
+                                rows="4"
+                                class="w-full rounded-md border px-3 py-2"
+                                placeholder="Masukkan deskripsi kategori (opsional)"
+                            ></textarea>
 
-                            <InputError :message="errors.brand?.[0]" />
-                        </div>
-
-                        <!-- ================= STOCK ================= -->
-
-                        <div class="space-y-2">
-                            <Label for="stock">Stock</Label>
-
-                            <Input
-                                id="stock"
-                                type="number"
-                                min="0"
-                                v-model="form.stock"
-                                :class="{
-                                    'border-red-500 focus-visible:ring-red-500':
-                                        errors.stock,
-                                }"
-                            />
-
-                            <InputError :message="errors.stock?.[0]" />
-                        </div>
-
-                        <!-- ================= CONDITION ================= -->
-
-                        <div class="space-y-2">
-                            <Label>Kondisi</Label>
-
-                            <Select v-model="form.condition">
-                                <SelectTrigger
-                                    :class="{
-                                        'border-red-500': errors.condition,
-                                    }"
-                                >
-                                    <SelectValue />
-                                </SelectTrigger>
-
-                                <SelectContent>
-                                    <SelectItem value="good"> Good </SelectItem>
-
-                                    <SelectItem value="maintenance">
-                                        Maintenance
-                                    </SelectItem>
-
-                                    <SelectItem value="damaged">
-                                        Damaged
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-
-                            <InputError :message="errors.condition?.[0]" />
-                        </div>
-
-                        <!-- ================= STATUS ================= -->
-
-                        <div class="space-y-2">
-                            <Label>Status</Label>
-
-                            <Select v-model="form.status">
-                                <SelectTrigger
-                                    :class="{
-                                        'border-red-500': errors.status,
-                                    }"
-                                >
-                                    <SelectValue />
-                                </SelectTrigger>
-
-                                <SelectContent>
-                                    <SelectItem value="available">
-                                        Available
-                                    </SelectItem>
-
-                                    <SelectItem value="not_available">
-                                        Not Available
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-
-                            <InputError :message="errors.status?.[0]" />
+                            <InputError :message="errors.description?.[0]" />
                         </div>
                     </div>
 

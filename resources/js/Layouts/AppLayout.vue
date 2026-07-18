@@ -8,7 +8,7 @@ import {
 
 import Sidebar from "@/Layouts/Partials/Sidebar.vue";
 import { ref, computed, onMounted } from "vue";
-import { Head, Link, router, usePage } from "@inertiajs/vue3";
+import { Head, Link, usePage } from "@inertiajs/vue3";
 import { IconLayoutSidebar, IconX } from "@tabler/icons-vue";
 import Avatar from "@/Components/ui/avatar/Avatar.vue";
 import AvatarFallback from "@/Components/ui/avatar/AvatarFallback.vue";
@@ -23,22 +23,6 @@ const user = ref(null);
 
 onMounted(() => {
     user.value = JSON.parse(localStorage.getItem("user"));
-    const token = localStorage.getItem("token");
-
-    // Belum login
-    if (!token) {
-        router.visit("/login");
-        return;
-    }
-
-    // Sudah login
-    const user = localStorage.getItem("user");
-
-    // Kalau token ada tapi user hilang, logout saja
-    if (!user) {
-        localStorage.removeItem("token");
-        router.visit("/login");
-    }
 });
 const url = computed(() => page.url);
 </script>

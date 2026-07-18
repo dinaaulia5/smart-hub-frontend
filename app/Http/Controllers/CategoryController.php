@@ -16,4 +16,19 @@ class CategoryController extends Controller
             'items' => fn() => CategoryPage::breadcrumbs(),
         ]);
     }
+    public function create(): Response
+    {
+        return inertia('Categories/Create', [
+            'pageSettings' => fn() => CategoryPage::create(),
+            'items' => fn() => CategoryPage::createBreadcrumbs(),
+        ]);
+    }
+    public function edit(string $id): Response
+    {
+        return inertia('Categories/Edit', [
+            'pageSettings' => fn() => CategoryPage::edit($id),
+            'items' => fn() => CategoryPage::editBreadcrumbs(),
+            'id' => $id,
+        ]);
+    }
 }
