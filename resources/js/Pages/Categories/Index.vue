@@ -1,6 +1,6 @@
 <script setup>
-import { reactive, ref, computed, watch, onMounted } from "vue";
-import { Link, router } from "@inertiajs/vue3";
+import { ref, onMounted } from "vue";
+import { Link } from "@inertiajs/vue3";
 
 import AppLayout from "@/Layouts/AppLayout.vue";
 import Banner from "@/Components/Banner.vue";
@@ -52,16 +52,78 @@ const props = defineProps({
 const categories = ref([]);
 const loading = ref(false);
 
-onMounted(async () => {
+const meta = ref({
+    links: [],
+});
+
+const links = ref({
+    first: null,
+    last: null,
+    prev: null,
+    next: null,
+});
+
+const state = ref({
+    search: "",
+});
+
+const params = ref({
+    search: "",
+    field: "created_at",
+    direction: "desc",
+    page: 1,
+    per_page: 10,
+});
+
+const fetchCategories = async () => {
     loading.value = true;
 
     try {
-        const response = await categoryService.getAll();
+        const response = await categoryService.getAll(params.value);
 
         categories.value = response.data.data;
+        meta.value = response.data.meta;
+        links.value = response.data.links;
+
+        console.log("META :", meta.value);
+        console.log("LINKS :", links.value);
+    } catch (error) {
+        console.error(error);
     } finally {
         loading.value = false;
     }
+};
+
+const updateParams = (newParams) => {
+    params.value = {
+        ...params.value,
+        ...newParams,
+        page: 1,
+    };
+
+    fetchCategories();
+};
+
+const onSortTable = (field) => {
+    if (params.value.field === field) {
+        params.value.direction =
+            params.value.direction === "asc" ? "desc" : "asc";
+    } else {
+        params.value.field = field;
+        params.value.direction = "asc";
+    }
+
+    fetchCategories();
+};
+
+const onPageChange = (page) => {
+    params.value.page = page;
+
+    fetchCategories();
+};
+
+onMounted(() => {
+    fetchCategories();
 });
 </script>
 
@@ -217,12 +279,22 @@ onMounted(async () => {
                     </TableBody>
                 </Table>
             </CardContent>
-        </Card>
 
-        <Create
-            v-model:open="openModal"
-            :mode="modalMode"
-            :category="selectedAirport"
-        />
+            <CardFooter
+                class="flex flex-col items-center justify-between w-full py-3 border-t gap-y-2 lg:flex-row"
+            >
+                <p class="text-sm text-muted-foreground">
+                    Menampilkan
+                    <span class="font-medium text-emerald-600">
+                        {{ meta.from ?? 0 }}
+                    </span>
+                    dari {{ meta.total ?? 0 }} Kategori
+                </p>
+
+                <div class="overflow-x-auto">
+                    <PaginationTable :meta="meta" :links="links" />
+                </div>
+            </CardFooter>
+        </Card>
     </div>
 </template>
