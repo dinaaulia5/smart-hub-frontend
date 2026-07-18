@@ -43,7 +43,7 @@ defineProps({
 
             <!-- NUMBER -->
             <PaginationItem
-                v-for="(link, index) in meta.links.slice(1, -1)"
+                v-for="(link, index) in (meta.links ?? []).slice(1, -1)"
                 :key="index"
                 class="mx-1 mb-1 lg:mb-0"
             >

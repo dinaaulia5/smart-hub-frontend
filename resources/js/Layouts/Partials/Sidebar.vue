@@ -2,7 +2,6 @@
 import { ref, onMounted, computed } from "vue";
 import authService from "@/Services/authService";
 import { router } from "@inertiajs/vue3";
-import { IconLogout } from "@tabler/icons-vue";
 
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import NavLink from "@/Components/NavLink.vue";
@@ -12,12 +11,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 
 import {
     IconLayoutDashboard,
-    IconMapPin,
-    IconPlane,
-    IconPlaneDeparture,
-    IconTicket,
-    IconRobot,
-    IconHistory,
+    IconCategory,
+    IconPackage,
+    IconDoor,
+    IconCalendarEvent,
+    IconLogout,
 } from "@tabler/icons-vue";
 
 import { usePage } from "@inertiajs/vue3";
@@ -27,6 +25,13 @@ const page = usePage();
 const url = computed(() => page.url);
 
 const user = ref(null);
+const isAdmin = computed(() => {
+    return user.value?.role === "admin" || user.value?.role?.name === "admin";
+});
+
+const isUser = computed(() => {
+    return user.value?.role === "user" || user.value?.role?.name === "user";
+});
 
 onMounted(() => {
     const data = localStorage.getItem("user");
@@ -75,7 +80,6 @@ const logout = async () => {
         </Card>
 
         <ul role="list" class="flex flex-1 flex-col gap-y-2">
-            <!-- Dashboard -->
             <div class="px-3 py-2 text-sm font-medium text-muted-foreground">
                 General
             </div>
@@ -87,15 +91,47 @@ const logout = async () => {
                 :icon="IconLayoutDashboard"
             />
 
-            <!-- Dashboard -->
-            <div class="px-3 py-2 text-sm font-medium text-muted-foreground">
-                Data Master
+            <div
+                v-if="isAdmin || isUser"
+                class="px-3 py-2 text-sm font-medium text-muted-foreground"
+            >
+                Master Data
             </div>
 
+            <!-- Category hanya Admin -->
             <NavLink
+                v-if="isAdmin"
                 title="Equipment Category"
                 :url="route('categories.index')"
                 :active="url.startsWith('/categories')"
+                :icon="IconCategory"
+            />
+
+            <!-- Equipment -->
+            <NavLink
+                title="Equipment"
+                :url="route('equipments.index')"
+                :active="url.startsWith('/equipments')"
+                :icon="IconPackage"
+            />
+
+            <!-- Room -->
+            <NavLink
+                title="Room"
+                :url="route('rooms.index')"
+                :active="url.startsWith('/rooms')"
+                :icon="IconDoor"
+            />
+
+            <!-- Dashboard -->
+            <div class="px-3 py-2 text-sm font-medium text-muted-foreground">
+                Data Transaksi
+            </div>
+
+            <NavLink
+                title="Bookings"
+                :url="route('bookings.index')"
+                :active="url.startsWith('/bookings')"
                 :icon="IconLayoutDashboard"
             />
             <div class="mt-auto border-t pt-4">
